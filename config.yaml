@@ -1,0 +1,23 @@
+backfill:
+  symbols: [RELIANCE,TCS,INFOSYS,ICICIBANK,HDFCBANK]
+  timeframe: "5m"
+  days: 60
+intraday:
+  interval_seconds: 120
+universe:
+  adtv_cr: 20
+  atr_pct_min: 1.0
+  atr_pct_max: 6.0
+focus:
+  topk: 30
+strategies:
+  vwap_bounce: 
+    atr_mult: 1.2
+    vol_z_min: 1.5
+  orb:
+    open_minutes: 15
+    vol_z_min: 1.0
+risk:
+  min_rr: 1.5
+alerts:
+  approaching_pct: 0.3
