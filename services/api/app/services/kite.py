@@ -2,16 +2,16 @@
 
 # for production code
 # import os
+# from datetime import date
 # from kiteconnect import KiteConnect
 
+# api_key = os.environ.get("KITE_API_KEY")
+# access_token= os.environ.get("KITE_ACCESS_TOKEN") 
+# kite = KiteConnect(api_key=api_key)
+# kite.set_access_token(access_token)   
+
 # def get_stocks():
-#     api_key = os.environ.get("KITE_API_KEY")
-#     access_token= os.environ.get("KITE_ACCESS_TOKEN") 
-#     kite = KiteConnect(api_key=api_key)
-#     kite.set_access_token(access_token)   
-
 #     instruments = kite.instruments(exchange="NSE")
-
 #     active_stocks = [
 #         {
 #              "exchange": inst["exchange"],
@@ -26,6 +26,9 @@
 #     ]
 #     return active_stocks
 
+# def get_historical_data(symbol, from_date, to_date, interval="5m"):
+#     historical_data = kite.historical_data(instrument_token=symbol, from_date=from_date, to_date=to_date, interval=interval)
+#     return historical_data
 
 def get_stocks():
     """
@@ -74,5 +77,34 @@ def get_stocks():
             "sector": "BANKING",
             "tick_size": 0.05,
             "is_active": True,
+        },
+    ]
+
+def get_historical_data(symbol, from_date, to_date, interval="5m"):
+    """
+    Fetch historical OHLCV candles for a symbol from Kite API.
+    Returns: List of dicts with time, open, high, low, close, volume, etc.
+    """
+    # Kite API to be called here 
+    return [
+        {
+            "symbol": "RELIANCE",
+            "date": from_date,   # datetime or string
+            "open": 100.0,
+            "high": 102.0,
+            "low":  99.5,
+            "close": 101.0,
+            "volume": 150000,
+            "timeframe": interval,
+        },
+        {
+            "symbol": "TCS",
+            "date": from_date,   # datetime or string
+            "open": 1000.0,
+            "high": 1020.0,
+            "low":  990,
+            "close": 1010.0,
+            "volume": 3000,
+            "timeframe": interval,
         },
     ]
