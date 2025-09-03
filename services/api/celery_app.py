@@ -1,4 +1,5 @@
 from celery import Celery
+from datetime import timedelta
 
 celery_app = Celery(
     "pragyan",
@@ -7,3 +8,11 @@ celery_app = Celery(
 )
 
 celery_app.conf.timezone = "Asia/Kolkata"
+
+celery_app.conf.beat_schedule = {
+        "update-all-stocks-5m": {
+            "task" : "app.workers.task.update_all_stocks_5m",
+            "schedule" : timedelta(minutes=5)  
+        }
+}
+
