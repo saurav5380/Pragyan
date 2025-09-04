@@ -41,6 +41,3 @@ def compute_features(df: pd.DataFrame) -> pd.DataFrame:
 
 
 
-# df = pd.DataFrame({'close': [10,12,13,14,15,16,17,18,19,20]})
-# print(df.ta.indicators)
-
