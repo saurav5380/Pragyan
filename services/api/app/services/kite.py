@@ -14,15 +14,15 @@
 #     instruments = kite.instruments(exchange="NSE")
 #     active_stocks = [
 #         {
-#              "exchange": inst["exchange"],
-#             "ticker": inst["ticker"],
+#             "exchange": inst["exchange"],
+#             "ticker": inst["tradingsymbol"],
 #             "name": inst["name"],
 #             "sector": inst.get("sector") or "",
 #             "tick_size": float(inst.get("tick_size", 0.05)),
 #             "is_active": inst.get("active", True),
 #         }
 #         for inst in instruments
-#         if inst.get("segment") == "NSE" and inst.get("instrument_type") == "EQ" and inst.get("exchange") == "NSE"
+#         if inst.get("segment") == "NSE" and inst.get("instrument_type") == "EQ" 
 #     ]
 #     return active_stocks
 

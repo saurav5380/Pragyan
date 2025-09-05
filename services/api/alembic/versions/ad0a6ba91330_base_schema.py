@@ -28,7 +28,9 @@ def upgrade() -> None:
         sa.Column("name", sa.String(64), nullable=True),
         sa.Column("sector", sa.String(128), nullable=True),
         sa.Column("tick_size", sa.Numeric(10,4), nullable=True),
-        sa.Column("is_active", sa.Boolean, nullable=False, server_default=sa.text("true")),
+        sa.Column("instrument_token", sa.String(16), nullable=False),
+        sa.Column("last_price", sa.Numeric(10,4), nullable=False),
+        # sa.Column("is_active", sa.Boolean, nullable=False, server_default=sa.text("true")),
         sa.UniqueConstraint("exchange","ticker", name="uq_symbols_exchange_ticker"),
     )
 

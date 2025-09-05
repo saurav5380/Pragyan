@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime, timedelta
 from app.services.kite import get_historical_data
-from app.celery_app import celery_app
+from api.celery_app import celery_app
 from app.db import SessionLocal
 from app.services.features import compute_features
 
