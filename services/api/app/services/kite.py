@@ -19,7 +19,8 @@
 #             "name": inst["name"],
 #             "sector": inst.get("sector") or "",
 #             "tick_size": float(inst.get("tick_size", 0.05)),
-#             "is_active": inst.get("active", True),
+#             "instrument_token": inst.get("instrument_token", True),
+#             "last_price": inst.get("last_price", 0.0)
 #         }
 #         for inst in instruments
 #         if inst.get("segment") == "NSE" and inst.get("instrument_type") == "EQ" 
