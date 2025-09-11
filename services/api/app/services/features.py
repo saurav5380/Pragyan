@@ -1,10 +1,6 @@
 import pandas as pd
 import numpy as np
-# monkey patch
-if not hasattr(np, "NaN"):
-    np.NaN = np.nan
 
-import pandas_ta as ta
 
 def compute_features(df: pd.DataFrame) -> pd.DataFrame:
     #RSI
