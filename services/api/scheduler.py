@@ -1,4 +1,5 @@
 from datetime import datetime
+import pandas as pd
 import time, os
 from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -13,14 +14,27 @@ kite = KiteConnect(api_key=kite_api_key)
 kite.set_access_token(access_token=kite_access_token)
 
 def fetch_price():
-    # get the current universe dataframe
-    current_universe = create_universe()
+    try:
+        stock_prices = []
+        current_universe = create_universe() # get the current universe dataframe
+        stocks = current_universe["symbol"]
+        for stock in stocks:
+            stock_prices.append(kite.quote(stock)) 
+        column_mapping = {
+            'volume': 'v',
+            'high': 'h',
+            'open': 'o',
+            'close': 'c',
+            'low': 'l'
+        }
+        temp_df = pd.DataFrame(stock_prices)
+        current_stock_prices = temp_df.rename(columns=column_mapping)
     
-
-
-
-
+    except Exception as e:
+        print(f"Error: {e}")
     
+    return current_stock_prices
+  
 scheduler.add_job(fetch_price,'interval',minutes=5)
 
 print(f"Starting the scheduler")
