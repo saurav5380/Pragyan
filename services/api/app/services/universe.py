@@ -173,18 +173,22 @@ def create_universe():
         # filter the df based on ADV and ATR values
         filtered_df = merged_df[(merged_df["ADV20"] > 100000) & (merged_df["ATR14"] > 5)]
 
-        
-        
-        
+        # multiple values of ADV and ATR are calculated since it is a rolling return but only the latest value should be retained. 
+        latest_idx = filtered_df.groupby("symbol")["ts"].idxmax()
+        latest_rows = filtered_df.loc[latest_idx]
 
+        # create the trading universe using the latest_rows such that a single value of ADV and ATR is retained per stock
+        trading_universe = latest_rows.sort_values("ADV20", ascending=False).head(100)
+        return trading_universe.reset_index(drop=True)
+        
     except Exception as e:
         print(f"Failed to create trading universe: {e}")
-        return []
+        return pd.DataFrame()
     
     
-    trading_universe = trading_universe.sort_values(["symbol","ts"], inplace=True).drop_duplicates()
-    trading_universe = trading_universe.sort_values("ADV20", ascending=False).head(100)
-    return trading_universe
+    
+    
+    
 
 
 
