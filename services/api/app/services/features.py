@@ -24,10 +24,10 @@ def compute_features(df: pd.DataFrame) -> pd.DataFrame:
     df["vol_z"] = (df["v"] - df["v"].rolling(20).mean())/ df["v"].rolling(20).std()
 
     #MA 50
-    df["ma50"] = ta.sma(df["c"], length=50)
+    df["ma50"] = df["c"].rolling(50).mean()
     
     #MA200
-    df["ma200"] = ta.sma(df["c"], length=200)
+    df["ma200"] = df["c"].rolling(200).mean()
 
     return df
 
