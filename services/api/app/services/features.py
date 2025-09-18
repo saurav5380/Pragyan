@@ -1,35 +1,27 @@
 import pandas as pd
 import numpy as np
+from dataclasses import dataclass
+from typing import Optional
 
+@dataclass
+class FeatureConfig:
+    rsi_period: int = 14
+    macd_fast: int = 12
+    macd_slow: int = 26
+    macd_signal: int = 9
+    atr_period: int = 14
+    ma_short: int = 50
+    ma_long: int = 200
+    vol_z_window: int = 20
+    adtv_window_days: int = 20
+    baseline_rs: Optional[pd.Series] = None
+    vwap_sessionize: bool = True
+    currency_scale_to_crore: bool = True
 
-def compute_features(df: pd.DataFrame) -> pd.DataFrame:
-    #RSI
-    df["rsi14"] = ta.rsi(df["c"], length=14)
     
-    #MACD
-    macd = ta.macd(df["c"])
-    df["macd"] = macd["MACD_12_26_9"]
-    df["macd_sig"] = macd["MACDs_12_26_9"]
 
-    #ATR
-    df["atr14"] = ta.atr(df["h"], df["l"], df["c"],period=14)
 
-    #VWAP
-    df["vwap"] = ta.vwap(df["h"], df["l"], df["c"], df["v"])
 
-    #VWAP Deviation
-    df["vwap_dev"] = (df["c"] - df["vwap"])/df["vwap"]
-
-    #Z-Score
-    df["vol_z"] = (df["v"] - df["v"].rolling(20).mean())/ df["v"].rolling(20).std()
-
-    #MA 50
-    df["ma50"] = df["c"].rolling(50).mean()
-    
-    #MA200
-    df["ma200"] = df["c"].rolling(200).mean()
-
-    return df
 
 
 
