@@ -5,10 +5,10 @@ from typing import Optional, List
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import (
     String, Integer, BigInteger, DateTime, Numeric,
-    ForeignKey, Index, UniqueConstraint, PrimaryKeyConstraint
+    ForeignKey, Index, UniqueConstraint, PrimaryKeyConstraint, Boolean
 )
 
-from db import Base  # Base lives in services/api/db.py (as you confirmed)
+from db import Base  # Base lives in services/api/db.py 
 
 # ---------------------------
 # symbols
@@ -23,9 +23,9 @@ class Symbol(Base):
     name: Mapped[Optional[str]] = mapped_column(String(64))
     sector: Mapped[Optional[str]] = mapped_column(String(128))
     tick_size: Mapped[Optional[float]] = mapped_column(Numeric(10, 4))
-    instrument_token: Mapped[str] = mapped_column(String(16), nullable=False)
-    last_price: Mapped[float] = mapped_column(Numeric(10, 4), nullable=False)
-
+    instrument_token: Mapped[str] = mapped_column(String(16), nullable=False, unique=True)
+    last_price: Mapped[Optional[float]] = mapped_column(Numeric(10, 4), nullable=True)
+    is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default="true")
     # Unique constraint (exchange, ticker)
     __table_args__ = (
         UniqueConstraint("exchange", "ticker", name="uq_symbols_exchange_ticker"),
@@ -65,7 +65,7 @@ class Candle(Base):
 
     __table_args__ = (
         PrimaryKeyConstraint("symbol_id", "ts", "timeframe", name="pk_candles"),
-        Index("ix_candles_symbol_ts", "symbol_id", "ts"),
+        Index("ix_candles_symbol_tf_ts", "symbol_id", "timeframe", "ts"),
     )
 
 # ---------------------------
@@ -84,9 +84,11 @@ class Feature(Base):
     macd: Mapped[Optional[float]] = mapped_column(Numeric(10, 4))
     macd_sig: Mapped[Optional[float]] = mapped_column(Numeric(10, 4))
     atr14: Mapped[Optional[float]] = mapped_column(Numeric(10, 4))
+    atr_pct: Mapped[Optional[float]] = mapped_column(Numeric(10,4))
     vwap: Mapped[Optional[float]] = mapped_column(Numeric(10, 4))
     vwap_dev: Mapped[Optional[float]] = mapped_column(Numeric(10, 4))
     vol_z: Mapped[Optional[float]] = mapped_column(Numeric(10, 4))
+    adtv: Mapped[Optional[float]] = mapped_column(Numeric(10, 4))
     ma50: Mapped[Optional[float]] = mapped_column(Numeric(14, 4))
     ma200: Mapped[Optional[float]] = mapped_column(Numeric(14, 4))
 
@@ -94,5 +96,5 @@ class Feature(Base):
 
     __table_args__ = (
         PrimaryKeyConstraint("symbol_id", "ts", name="pk_features"),
-        Index("idx_features_symbol_ts", "symbol_id", "ts"),
+        Index("ix_features_symbol_ts", "symbol_id", "ts"),
     )

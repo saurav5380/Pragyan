@@ -1,0 +1,73 @@
+- .DS_Store
+- .env
+- .gitignore
+- DEVELOPMENT.md
+- README.md
+- config.yaml
+- docker-compose.yml
+- equity_india_system_architecture_data_flow_local_first_zerodha_equities_only.md
+- frontend
+- infra
+  - compose
+  - db
+- requirements.txt
+- services
+  - .DS_Store
+  - api
+    - .python-version
+    - __pycache__
+      - db.cpython-311.pyc
+    - alembic
+      - README
+      - __pycache__
+        - env.cpython-311.pyc
+      - env.py
+      - script.py.mako
+      - versions
+        - 6fc0678590bf_sync_models_with_base_schema.py
+        - __pycache__
+          - 6fc0678590bf_sync_models_with_base_schema.cpython-311.pyc
+          - a15f56067bb9_upgrade_schema_of_symbols_table.cpython-311.pyc
+          - ad0a6ba91330_base_schema.cpython-311.pyc
+        - ad0a6ba91330_base_schema.py
+    - alembic.ini
+    - app
+      - __init__.py
+      - __pycache__
+        - __init__.cpython-311.pyc
+        - db.cpython-311.pyc
+        - main.cpython-311.pyc
+        - models.cpython-311.pyc
+        - settings.cpython-311.pyc
+      - celery_app.py
+      - db.py
+      - deps.py
+      - main.py
+      - models.py
+      - routes
+        - journal.py
+        - signals.py
+        - symbols.py
+        - universe.py
+        - ws.py
+      - schemas.py
+      - services
+        - alerts.py
+        - ensemble.py
+        - features.py
+        - kite.py
+        - news.py
+        - redis_utils.py
+        - universe.py
+      - settings.py
+      - workers
+        - tasks.py
+    - db.py
+    - scheduler.py
+    - settings.py
+    - strategies
+      - base.py
+      - orb.py
+      - vwap_bounce.py
+  - scheduler
+

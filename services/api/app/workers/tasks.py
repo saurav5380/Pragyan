@@ -12,16 +12,16 @@ The parent task now calls upon other 'child' tasks like 'update_price_task()' an
 '''
 
 
-def ingest_candles(symbol_id: int, ticker: str, interval:str = "5m", days:int = 60) -> pd.DataFrame: 
+def ingest_candles(symbol_id: int, instrument_token: str, interval:str = "5m", days:int = 60) -> pd.DataFrame: 
     to_date = datetime.now(timezone.utc) 
     from_date = to_date - timedelta(days=days)
-    candle_data = get_historical_data(instrument_token=ticker, from_date=from_date, to_date=to_date, interval=interval) 
+    candle_data = get_historical_data(instrument_token=instrument_token, from_date=from_date, to_date=to_date, interval=interval) 
     # <---- Code to store candle_data in DB ----->
     candle_df = pd.DataFrame(candle_data)
     if candle_df.empty:
         return candle_df
     df = candle_df.rename(columns={"date": "ts", "open": "o", "high": "h", "low": "l", "close": "c", "volume": "v"})
-    [["ts","o","h","c","l","v"]].sort_values("ts").reset_index(drop=True)
+    df = df[["ts","o","h","c","l","v"]].sort_values("ts").reset_index(drop=True)
 
     #Upsert to DB
     with SessionLocal() as db:
@@ -41,7 +41,7 @@ def ingest_candles(symbol_id: int, ticker: str, interval:str = "5m", days:int = 
         db.execute(text(""" 
             INSERT INTO candles (symbol_id, ts, o, h, l, c, v, timeframe)
             VALUES (:symbol_id, :ts, :o, :h, :l, :c, :v, :timeframe)
-            ON CONFLICT (symbol_id, ts, timeframe) DO UPDATE SET
+            ON CONFLICT (symbol_id, ts, timeframe) DO `UPDATE` SET
               o = EXCLUDED.o, h = EXCLUDED.h, l = EXCLUDED.l,
               c = EXCLUDED.c, v = EXCLUDED.v
         """), params)
@@ -51,19 +51,18 @@ def ingest_candles(symbol_id: int, ticker: str, interval:str = "5m", days:int = 
 @celery_app.task(autoretry_for=(Exception,), retry_backoff=True, max_retries=5)
 def update_price_task(symbol_id: str, ticker: str, interval: str ="5m") -> int:
     days=1
-    candles = ingest_candles(symbol_id,interval,days)
+    candles = ingest_candles(symbol_id, ticker, interval, days)
     print(f"Candle Data ingested for ${ticker}")
     return len(candles)
 
 @celery_app.task 
 def update_all_stocks_5m() -> str: 
     db = SessionLocal()
-    symbols = db.execute("SELECT ticker FROM symbols WHERE is_active = true").fetchall()
+    symbols = db.execute("SELECT id, instrument_token FROM symbols WHERE is_active = true").fetchall()
     db.close()
 
-    for symbol_row in symbols:
-        symbol = symbol_row[0]
-        update_price_task.delay(symbol,"5m")
+    for symbol_id, token in symbols:
+        update_price_task.delay(symbol_id,token,"5m")
     
     return f"Queued price update for {len(symbols)}"
 
@@ -158,7 +157,7 @@ def calc_features(interval: str = "5m") -> str:
             """), payload)
             db.commit()
             total_written += len(payload)
-            return f"Features upserted rows: {total_written}"
+    return f"Features upserted rows: {total_written}"
     
     
     
