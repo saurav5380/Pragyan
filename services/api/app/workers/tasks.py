@@ -41,7 +41,7 @@ def ingest_candles(symbol_id: int, instrument_token: str, interval:str = "5m", d
         db.execute(text(""" 
             INSERT INTO candles (symbol_id, ts, o, h, l, c, v, timeframe)
             VALUES (:symbol_id, :ts, :o, :h, :l, :c, :v, :timeframe)
-            ON CONFLICT (symbol_id, ts, timeframe) DO `UPDATE` SET
+            ON CONFLICT (symbol_id, ts, timeframe) DO UPDATE SET
               o = EXCLUDED.o, h = EXCLUDED.h, l = EXCLUDED.l,
               c = EXCLUDED.c, v = EXCLUDED.v
         """), params)
@@ -49,10 +49,10 @@ def ingest_candles(symbol_id: int, instrument_token: str, interval:str = "5m", d
     return df
 
 @celery_app.task(autoretry_for=(Exception,), retry_backoff=True, max_retries=5)
-def update_price_task(symbol_id: str, ticker: str, interval: str ="5m") -> int:
+def update_price_task(symbol_id: int, instrument_token: str, interval: str ="5m") -> int:
     days=1
-    candles = ingest_candles(symbol_id, ticker, interval, days)
-    print(f"Candle Data ingested for ${ticker}")
+    candles = ingest_candles(symbol_id, instrument_token, interval, days)
+    print(f"Candle Data ingested for ${instrument_token}")
     return len(candles)
 
 @celery_app.task 
@@ -71,10 +71,10 @@ def calc_features(interval: str = "5m") -> str:
     cfg = FeatureConfig()
     warmup = required_warmup_bars(cfg, interval)
     with SessionLocal() as db:
-        symbols = db.execute(text("SELECT id, ticker FROM symbols WHERE is_active = true")).fetchall()
+        symbols = db.execute(text("SELECT id, instrument_token FROM symbols WHERE is_active = true")).fetchall()
 
         total_written = 0
-        for symbol_id, ticker in symbols:
+        for symbol_id, instrument_token in symbols:
             # Load a compute window with warmup; here: last 2 trading days + warmup safety
             to_dt = datetime.now(timezone.utc)
             from_dt = to_dt - timedelta(days=3)
@@ -91,7 +91,7 @@ def calc_features(interval: str = "5m") -> str:
 
             if not rows:
                 # Fallback: try fetch from provider (optional)
-                ingest_candles(symbol_id, ticker, interval, days=3)
+                ingest_candles(symbol_id, instrument_token, interval, days=3)
                 rows = db.execute(text("""
                     SELECT ts, o, h, l, c, v
                     FROM candles
