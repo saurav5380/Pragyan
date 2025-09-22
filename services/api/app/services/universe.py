@@ -168,7 +168,7 @@ def create_universe():
 
         # merged df - to include 'instrument_token' 
         columns_for_merge = ["symbol","instrument_token"]
-        merged_df = hist_df.merge(get_all_stock_quotes[columns_for_merge].drop_duplicates(), on='symbol', how='left')
+        merged_df = hist_df.merge(quotes_df[columns_for_merge].drop_duplicates(), on='symbol', how='left')
         
         # filter the df based on ADV and ATR values
         filtered_df = merged_df[(merged_df["ADV20"] > 100000) & (merged_df["ATR14"] > 5)]

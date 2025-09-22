@@ -1,3 +1,9 @@
+
+'''The below are Celery tasks which are written in a 'fan-out' pattern
+In the 'fan-out' pattern --> One Parent task which is the function 'update_all_stocks_5m()' is called 
+The parent task now calls upon other 'child' tasks like 'update_price_task()' and 'ingest_candles()'
+''' 
+
 import pandas as pd
 from datetime import datetime, timedelta, timezone
 from app.services.kite import get_historical_data
@@ -6,12 +12,10 @@ from services.api.app.celery_app import celery_app
 from app.db import SessionLocal
 from app.services.features import (compute_features, FeatureConfig, required_warmup_bars)
 
-'''The below are Celery tasks which are written in a 'fan-out' pattern
-In the 'fan-out' pattern --> One Parent task which is the function 'update_all_stocks_5m()' is called 
-The parent task now calls upon other 'child' tasks like 'update_price_task()' and 'ingest_candles()'
-'''
-
-
+"""
+Function ingest_candles fetches the historical_data of the past 60 days 
+and writes into the SQL table -> candles
+"""
 def ingest_candles(symbol_id: int, instrument_token: str, interval:str = "5m", days:int = 60) -> pd.DataFrame: 
     to_date = datetime.now(timezone.utc) 
     from_date = to_date - timedelta(days=days)
@@ -52,7 +56,7 @@ def ingest_candles(symbol_id: int, instrument_token: str, interval:str = "5m", d
 def update_price_task(symbol_id: int, instrument_token: str, interval: str ="5m") -> int:
     days=1
     candles = ingest_candles(symbol_id, instrument_token, interval, days)
-    print(f"Candle Data ingested for ${instrument_token}")
+    print(f"Candle Data ingested for {instrument_token}")
     return len(candles)
 
 @celery_app.task 

@@ -26,7 +26,7 @@ def write_universe_to_redis(universe_df):
     pipe.execute()
 
     # create another copy of the ZSET for archival
-    members = pipe.zrange(zkey_today,0,-1,withscores=True)
+    members = r.zrange(zkey_today,0,-1,withscores=True)
     if members:
         pipe = r.pipeline(transaction=True)
         for member,score in members:

@@ -4,8 +4,8 @@ from __future__ import annotations
 from typing import Optional, List
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import (
-    String, Integer, BigInteger, DateTime, Numeric,
-    ForeignKey, Index, UniqueConstraint, PrimaryKeyConstraint, Boolean
+    Date, String, Integer, BigInteger, DateTime, Numeric,
+    ForeignKey, Index, UniqueConstraint, PrimaryKeyConstraint, Boolean, func
 )
 
 from db import Base  # Base lives in services/api/db.py 
@@ -97,4 +97,37 @@ class Feature(Base):
     __table_args__ = (
         PrimaryKeyConstraint("symbol_id", "ts", name="pk_features"),
         Index("ix_features_symbol_ts", "symbol_id", "ts"),
+    )
+
+# ---------------------------
+# Universe  (Daily Trading Universe )
+# PK: (symbol_id, ts, timeframe)
+# ---------------------------
+class Trading_Universe(Base):
+    __tablename__ = "trading_universe"
+
+    date: Mapped[Date] = mapped_column(Date, nullable=False)
+    asof_time: Mapped[str] = mapped_column(String(8), nullable=False)
+
+    symbol_id: Mapped[int] = mapped_column(
+        ForeignKey("symbols.id", ondelete="CASCADE"), nullable=False
+    )
+    
+    instrument_token: Mapped[Optional[str]] = mapped_column(String(16))
+    atr_pct: Mapped[Optional[float]] = mapped_column(Numeric(6, 3))
+    adv20: Mapped[Optional[float]] = mapped_column(Numeric(18, 2))
+    score: Mapped[float] = mapped_column(Numeric(10, 4))
+    rank: Mapped[Optional[int]] = mapped_column(Integer)
+
+    # Audit field
+    created_at: Mapped[Optional[DateTime]] = mapped_column(DateTime(timezone=True),server_default=func.now())
+
+    symbol: Mapped["Symbol"] = relationship(back_populates="universe_entries")
+
+    __table_args__ = (
+        PrimaryKeyConstraint("date", "asof_time", "symbol_id", name="pk_trading_universe"),
+        UniqueConstraint("date", "asof_time", "symbol_id", name="uq_universe_snapshot_key"),
+        # Fast lookups for intraday consumers
+        Index("ix_universe_date_asof_rank", "date", "asof_time", "rank"),
+        Index("ix_universe_date_asof_score", "date", "asof_time", "score"),
     )
