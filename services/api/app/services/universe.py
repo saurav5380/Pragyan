@@ -177,6 +177,11 @@ def create_universe():
         latest_idx = filtered_df.groupby("symbol")["ts"].idxmax()
         latest_rows = filtered_df.loc[latest_idx]
 
+        # create columns - score, rank and atr_pct
+        latest_rows["score"] = latest_rows["ADV20"]
+        latest_rows["rank"] = latest_rows["score"].rank()
+        latest_rows["atr_pct"] = (latest_rows["ATR14"]/latest_rows["c"]) * 100
+
         # create the trading universe using the latest_rows such that a single value of ADV and ATR is retained per stock
         trading_universe = latest_rows.sort_values("ADV20", ascending=False).head(100)
         return trading_universe.reset_index(drop=True)

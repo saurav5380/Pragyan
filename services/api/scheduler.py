@@ -11,6 +11,8 @@ from dotenv import load_dotenv
 from apscheduler.schedulers.background import BackgroundScheduler
 from kiteconnect import KiteConnect
 from services.api.app.services.universe import create_universe
+from sqlalchemy import text
+from app.db import SessionLocal
 load_dotenv()
 kite_api_key = os.getenv("KITE_API_KEY")
 kite_access_token = os.getenv("KITE_ACCESS_TOKEN")
@@ -18,7 +20,7 @@ kite_access_token = os.getenv("KITE_ACCESS_TOKEN")
 scheduler = BackgroundScheduler(timezone="Asia/Kolkata")
 kite = KiteConnect(api_key=kite_api_key)
 kite.set_access_token(access_token=kite_access_token)
-result = pd.DataFrame()
+empty_df = pd.DataFrame()
 
 
 
@@ -70,14 +72,28 @@ result = pd.DataFrame()
 #     return current_stock_prices
 
 def daily_trade_universe():
+    db = SessionLocal()
     try:
         trade_universe = create_universe()
         if trade_universe is None or trade_universe.empty:
             print("Universe is empty")
-            return result
+            return empty_df
+        for row in trade_universe:
+            instrument_token = row['instrument_token']
+            atr_pct = row['atr_pct']
+            adv20 = row['ADV20']
+            score = row['score']
+            rank = row['rank']
+            db.execute(text("""INSERT INTO TRADING_UNIVERSE (instrument_token, atr_pct, adv20, score,rank)
+                            VALUES (:instrument_token, :atr_pct, :adv20, :score, :rank)
+                            ON CONFLICT (date, asof_time, symbol_id) DO UPDATE SET
+                            instrument_token = EXCLUDED.instrument_token", "atr_pct = EXCLUDED.atr_pct
+                            adv20 = EXCLUDED.adv20, score = EXCLUDED.score, rank = EXCLUDED.rank"""
+                            ))
+        db.commit()
     except Exception as e:
         print(f"Error: {e}")
-        return result
+        return empty_df
 
 
   
