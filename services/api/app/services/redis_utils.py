@@ -1,7 +1,17 @@
 import redis
 import datetime, os
+from app.db import SessionLocal
+import pandas as pd
 
-def write_universe_to_redis(universe_df):
+def write_universe_to_redis():
+
+    # retrieve data from trading_universe table 
+    with SessionLocal() as db:
+        trading_universe = db.execute("SELECT * FROM Trading_Universe").fetchall()
+        columns = ["date", "asof_time", "symbol_id", "instrument_token", "atr_pct", "adv20", "score", "rank"]
+        universe_df = pd.DataFrame(trading_universe, columns)
+
+        
     # create keys
     today = datetime.date.today().strftime("%Y-%m-%d")
     zkey_today = f"universe:{today}"

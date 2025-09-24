@@ -55,9 +55,9 @@ class Candle(Base):
     ts: Mapped[DateTime] = mapped_column(DateTime(timezone=True), nullable=False)
 
     o: Mapped[float] = mapped_column(Numeric(14, 4), nullable=False)
-    c: Mapped[float] = mapped_column(Numeric(14, 4), nullable=False)
     h: Mapped[float] = mapped_column(Numeric(14, 4), nullable=False)
     l: Mapped[float] = mapped_column(Numeric(14, 4), nullable=False)
+    c: Mapped[float] = mapped_column(Numeric(14, 4), nullable=False)
     v: Mapped[int] = mapped_column(BigInteger, nullable=False)
     timeframe: Mapped[str] = mapped_column(String(8), nullable=False)
 
