@@ -11,6 +11,8 @@ from sqlalchemy import text
 from services.api.app.celery_app import celery_app
 from app.db import SessionLocal
 from app.services.features import (compute_features, FeatureConfig, required_warmup_bars)
+from celery import chain
+
 
 """
 Function ingest_candles fetches the historical_data of the past 60 days 
@@ -59,10 +61,11 @@ def update_price_task(symbol_id: int, instrument_token: str, interval: str ="5m"
     print(f"Candle Data ingested for {instrument_token}")
     return len(candles)
 
+# update price of all stocks in the trading universe 
 @celery_app.task 
 def update_all_stocks_5m() -> str: 
     db = SessionLocal()
-    symbols = db.execute("SELECT id, instrument_token FROM symbols WHERE is_active = true").fetchall()
+    symbols = db.execute("SELECT symbol_id, instrument_token FROM trading_universe").fetchall()
     db.close()
 
     for symbol_id, token in symbols:
@@ -75,7 +78,7 @@ def calc_features(interval: str = "5m") -> str:
     cfg = FeatureConfig()
     warmup = required_warmup_bars(cfg, interval)
     with SessionLocal() as db:
-        symbols = db.execute(text("SELECT id, instrument_token FROM symbols WHERE is_active = true")).fetchall()
+        symbols = db.execute(text("SELECT symbol_id, instrument_token FROM trading_universe ")).fetchall()
 
         total_written = 0
         for symbol_id, instrument_token in symbols:
@@ -93,18 +96,19 @@ def calc_features(interval: str = "5m") -> str:
                 ORDER BY ts ASC
             """), {"sid": symbol_id, "tf": interval, "from_dt": from_dt, "to_dt": to_dt}).fetchall()
 
-            if not rows:
-                # Fallback: try fetch from provider (optional)
-                ingest_candles(symbol_id, instrument_token, interval, days=3)
-                rows = db.execute(text("""
-                    SELECT ts, o, h, l, c, v
-                    FROM candles
-                    WHERE symbol_id = :sid AND timeframe = :tf
-                    AND ts BETWEEN :from_dt AND :to_dt
-                    ORDER BY ts ASC
-                """), {"sid": symbol_id, "tf": interval, "from_dt": from_dt, "to_dt": to_dt}).fetchall()
+            # if not rows:
+            #     # Fallback: try fetch from provider (optional)
+            #     ingest_candles(symbol_id, instrument_token, interval, days=3)
+            #     rows = db.execute(text("""
+            #         SELECT ts, o, h, l, c, v
+            #         FROM candles
+            #         WHERE symbol_id = :sid AND timeframe = :tf
+            #         AND ts BETWEEN :from_dt AND :to_dt
+            #         ORDER BY ts ASC
+            #     """), {"sid": symbol_id, "tf": interval, "from_dt": from_dt, "to_dt": to_dt}).fetchall()
 
             if not rows:
+                print("No rows of data returned from candles table")
                 continue
 
             df = pd.DataFrame(rows, columns=["ts","o","h","l","c","v"]).sort_values("ts").reset_index(drop=True)

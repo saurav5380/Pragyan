@@ -7,7 +7,7 @@ def write_universe_to_redis():
 
     # retrieve data from trading_universe table 
     with SessionLocal() as db:
-        trading_universe = db.execute("SELECT * FROM Trading_Universe").fetchall()
+        trading_universe = db.execute("SELECT * FROM trading_universe").fetchall()
         columns = ["date", "asof_time", "symbol_id", "instrument_token", "atr_pct", "adv20", "score", "rank"]
         universe_df = pd.DataFrame(trading_universe, columns)
 
@@ -15,7 +15,7 @@ def write_universe_to_redis():
     # create keys
     today = datetime.date.today().strftime("%Y-%m-%d")
     zkey_today = f"universe:{today}"
-    zkey_latest = "universe:latest"
+    zkey_latest = "universe:latest" # this is like the pointer which indicates that the ZSET stored is to be considered
 
     # create instance of Redis Server
     r = redis.Redis(host=os.environ.get("REDIS_HOST", "127.0.0.1"), port=6379, db=0)

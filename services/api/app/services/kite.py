@@ -28,4 +28,4 @@ def get_stocks():
 def get_historical_data(instrument_token, from_date, to_date, interval="5m"):
     historical_data = kite.historical_data(instrument_token=instrument_token, from_date=from_date, to_date=to_date, interval=interval)
     return historical_data
-
+    
