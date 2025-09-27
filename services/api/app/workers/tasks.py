@@ -168,7 +168,8 @@ def calc_features(interval: str = "5m") -> str:
     return f"Features upserted rows: {total_written}"
     
     
-    
+@celery_app.task
+
 
 
 
