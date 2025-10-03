@@ -12,6 +12,7 @@ from services.api.app.celery_app import celery_app
 from app.db import SessionLocal
 from app.services.features import (compute_features, FeatureConfig, required_warmup_bars)
 from celery import chain
+from celery.signals import task_success, task_failure
 
 
 """
@@ -168,7 +169,26 @@ def calc_features(interval: str = "5m") -> str:
     return f"Features upserted rows: {total_written}"
     
     
-@celery_app.task
+@celery_app.task(bind=True)
+def run_trade_pipeline(self):
+    pipeline = chain(
+        update_all_stocks_5m.s(),
+        calc_features.s()
+    )
+
+    result = pipeline()
+    return result
+
+@task_success.connect
+def on_success(sender, result, **kwargs):
+    print(f"Task {sender.name} succeded. Result: {result}")
+
+@task_failure.connect
+def on_failure(sender, exc, task_id, args, kwargs, einfo, **_):
+    print(f"Task {sender.name} failed. Task-id: {task_id}")
+    print(f"\n Task Exception: {exc}")
+    print(f"\n Traceback: {einfo}")
+
 
 
 
