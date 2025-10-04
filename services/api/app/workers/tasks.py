@@ -8,7 +8,7 @@ import pandas as pd
 from datetime import datetime, timedelta, timezone
 from app.services.kite import get_historical_data
 from sqlalchemy import text
-from services.api.app.celery_app import celery_app
+from app.celery_app import celery_app
 from app.db import SessionLocal
 from app.services.features import (compute_features, FeatureConfig, required_warmup_bars)
 from celery import chain

@@ -12,7 +12,7 @@ celery_app.conf.timezone = "Asia/Kolkata"
 
 celery_app.conf.beat_schedule = {
         "trade_pipeline": {
-            "task" : "app.workers.task.run_trade_pipeline",
+            "task" : "app.workers.tasks.run_trade_pipeline",
             "schedule" : timedelta(minutes=5),
             'args': (),
             'options': {'queue': 'intraday'}, 
