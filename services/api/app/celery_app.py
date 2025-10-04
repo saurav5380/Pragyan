@@ -1,5 +1,6 @@
 from celery import Celery
 from datetime import timedelta
+# from celery.schedules import crontab
 
 celery_app = Celery(
     "pragyan",
@@ -10,9 +11,11 @@ celery_app = Celery(
 celery_app.conf.timezone = "Asia/Kolkata"
 
 celery_app.conf.beat_schedule = {
-        "update-all-stocks-5m": {
-            "task" : "app.workers.task.update_all_stocks_5m",
-            "schedule" : timedelta(minutes=5)  
+        "trade_pipeline": {
+            "task" : "app.workers.task.run_trade_pipeline",
+            "schedule" : timedelta(minutes=5),
+            'args': (),
+            'options': {'queue': 'intraday'}, 
         }
 }
 
