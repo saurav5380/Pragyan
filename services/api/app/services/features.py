@@ -26,7 +26,7 @@ class FeatureConfig:
 # -----------------------
 
 def _ema(s: pd.Series, span: int) -> pd.Series:
-    return s.ewm(span=span, adjust=False, min_periods=span)
+    return s.ewm(span=span, adjust=False, min_periods=span).mean()
 
 def _rolling_zscore(s: pd.Series, window: int) -> pd.Series:
     m = s.rolling(window, min_periods=max(5, window // 3)).mean()
@@ -42,7 +42,7 @@ def _true_range(h: pd.Series, l: pd.Series, c_prev: pd.Series) -> pd.Series:
 def _session_id_from_ts(ts: pd.Series) -> pd.Series:
     return ts.dt.date
 
-def _ensure_cols(df: pd.Dataframe, cols: Iterable[str]) -> None:
+def _ensure_cols(df: pd.DataFrame, cols: Iterable[str]) -> None:
     missing = [c for c in cols if c not in df.columns]
     if missing:
         raise ValueError(f"Missing required Columns : {missing}")

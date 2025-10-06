@@ -14,4 +14,3 @@ def test_rsi():
     valid = out["rsi14"].dropna()
     assert (valid >= 0).all() and (valid <=100).all()
 
-    

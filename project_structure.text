@@ -1,7 +1,14 @@
 - .DS_Store
 - .env
 - .gitignore
-- DEVELOPMENT.md
+- .pytest_cache
+  - .gitignore
+  - CACHEDIR.TAG
+  - README.md
+  - v
+    - cache
+      - lastfailed
+      - nodeids
 - README.md
 - config.yaml
 - docker-compose.yml
@@ -10,11 +17,24 @@
 - infra
   - compose
   - db
+- project_structure.text
+- pytest.ini
 - requirements.txt
 - services
   - .DS_Store
+  - .pytest_cache
+    - .gitignore
+    - CACHEDIR.TAG
+    - README.md
+    - v
+      - cache
+        - lastfailed
+        - nodeids
+  - __init__.py
   - api
+    - .DS_Store
     - .python-version
+    - __init__.py
     - __pycache__
       - db.cpython-311.pyc
     - alembic
@@ -24,14 +44,12 @@
       - env.py
       - script.py.mako
       - versions
-        - 6fc0678590bf_sync_models_with_base_schema.py
         - __pycache__
-          - 6fc0678590bf_sync_models_with_base_schema.cpython-311.pyc
-          - a15f56067bb9_upgrade_schema_of_symbols_table.cpython-311.pyc
-          - ad0a6ba91330_base_schema.cpython-311.pyc
+        - a1e6c7a4d328_create_view_for_focus_set.py
         - ad0a6ba91330_base_schema.py
     - alembic.ini
     - app
+      - .DS_Store
       - __init__.py
       - __pycache__
         - __init__.cpython-311.pyc
@@ -52,12 +70,27 @@
         - ws.py
       - schemas.py
       - services
+        - .pytest_cache
+          - .gitignore
+          - CACHEDIR.TAG
+          - README.md
+          - v
+            - cache
+              - lastfailed
+              - nodeids
+        - __init__.py
         - alerts.py
         - ensemble.py
         - features.py
         - kite.py
         - news.py
         - redis_utils.py
+        - tests
+          - __pycache__
+            - test_features_macd.cpython-311-pytest-8.4.2.pyc
+            - test_features_rsi.cpython-311-pytest-8.4.2.pyc
+          - test_features_macd.py
+          - test_features_rsi.py
         - universe.py
       - settings.py
       - workers
@@ -70,4 +103,4 @@
       - orb.py
       - vwap_bounce.py
   - scheduler
-
+- test.ipynb
