@@ -36,7 +36,7 @@ def write_universe_to_redis():
         LIMIT 1
     """)
 
-    # CHANGE: fetch only today's chosen snapshot rows (no SELECT *)
+    # fetch only today's chosen snapshot rows 
     fetch_snapshot_sql = text("""
         SELECT date, asof_time, symbol_id, instrument_token, atr_pct, adv20, score, rank
         FROM trading_universe

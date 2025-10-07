@@ -1,15 +1,6 @@
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, text
-from .settings import settings
-from services.api.db import Base, engine, SessionLocal
 
-# engine = create_engine(
-#         settings.DATABASE_URL,
-#         pool_pre_ping=True,
-#         future=True
-# )
-
-# SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
+from sqlalchemy import text
+from ..db import engine, SessionLocal
 
 def get_session():
     db = SessionLocal()

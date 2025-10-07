@@ -1,24 +1,28 @@
-# version: "3.9"
-
 services:
   api:
-    build: ./services/api
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile # ✅ fixed here
     env_file: .env
     depends_on: [db, redis]
     ports: ["8000:8000"]
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
   worker:
-    build: ./services/api
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile # ✅ same fix here
     env_file: .env
     depends_on: [db, redis]
     command: celery -A app.celery_app worker --loglevel=INFO
-  
 
   scheduler:
-    build: ./services/api
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile # ✅ same fix here
     env_file: .env
     depends_on: [db, redis]
-    command: python -m app.scheduler 
+    command: python -m app.scheduler
 
   db:
     image: timescale/timescaledb:latest-pg16
@@ -36,5 +40,3 @@ services:
 
 volumes:
   pgdata:
-
-     

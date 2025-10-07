@@ -1,10 +1,15 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy import text
 from sqlalchemy.orm import Session
-from .db import get_session, ping_db
+from .db import get_session
+from .routes.kite_callback import router as kite_callback_router
 
 
 app = FastAPI()
+
+@app.get("/")
+def welcome():
+    return ("FastAPI app is running")
 
 @app.get("/healthz")
 def healthz():
@@ -20,5 +25,8 @@ def db_check(db: Session = Depends(get_session)):
         "timescaledb_version": bool(ext),
         "hypertable": bool(ht)
     }
+
+app.include_router(kite_callback_router)
+
 
 
