@@ -3,18 +3,13 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install system deps (optional)
 RUN apt-get update && apt-get install -y --no-install-recommends build-essential && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first (for layer caching)
-COPY requirements.txt .
-
+# Copy requirements (this file must exist in services/api/)
+COPY requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy app source
-COPY services/api/app ./app
-
+# ✅ Copy the app folder directly (relative to build context)
+COPY app ./app
 
 EXPOSE 8000
-
-# Command is provided by docker-compose
