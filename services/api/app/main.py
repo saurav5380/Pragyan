@@ -1,15 +1,19 @@
 from fastapi import FastAPI, Depends
+from fastapi.responses import HTMLResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 from .db import get_session
 from .routes.kite_callback import router as kite_callback_router
-
+import os 
+from dotenv import load_dotenv
+load_dotenv()
 
 app = FastAPI()
+API_KEY = os.environ.get("KITE_API_KEY")
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def welcome():
-    return ("FastAPI app is running")
+    return HTMLResponse(f"<h3><a href='https://kite.trade/connect/login?v=3&api_key={API_KEY}'>Login to Kite</a></h3>")
 
 @app.get("/healthz")
 def healthz():
