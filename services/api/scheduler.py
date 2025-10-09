@@ -8,12 +8,14 @@ at 8:30AM, 9:30AM and 12:30PM IST
 
 from datetime import datetime
 import pandas as pd
-import time
 import pytz
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import text
 from app.db import SessionLocal
 from services.api.app.services.universe import create_universe  # business logic lives here
+import logging
+
+logger = logging.getLogger("uvicorn.error")
 
 IST = pytz.timezone("Asia/Kolkata")
 scheduler = BackgroundScheduler(timezone="Asia/Kolkata")
@@ -87,13 +89,22 @@ scheduler.add_job(daily_trade_universe, "cron", hour=8, minute=30, coalesce=True
 scheduler.add_job(daily_trade_universe, "cron", hour=9, minute=30, coalesce=True, max_instances=1)
 scheduler.add_job(daily_trade_universe, "cron", hour=12, minute=30, coalesce=True, max_instances=1)
 
-print("Starting the scheduler")
-scheduler.start()
+def start_scheduler():
+    try:
+        if not scheduler.running:
+            scheduler.start()
+            logger.info("Scheduler started at %s", IST)
+    except Exception as e:
+        logger.exception("Failed to start scheduler due to exception: %s", e)
 
-try:
-    while True:
-        time.sleep(2)
-except (KeyboardInterrupt, SystemExit):
-    print("Shutting down scheduler")
-    scheduler.shutdown()
+def shutdown_scheduler():
+    try:
+        if scheduler.running:
+            scheduler.shutdown(wait=False)
+            logger.info("APScheduler Stopped at %s", IST)
+    except Exception as e:
+        logger.exception("Failed to stop scheduler due to exception: %s", e)
+        
+
+
 

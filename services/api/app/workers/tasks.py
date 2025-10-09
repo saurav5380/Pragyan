@@ -13,7 +13,7 @@ from app.db import SessionLocal
 from app.services.features import (compute_features, FeatureConfig, required_warmup_bars)
 from celery import chain
 from celery.signals import task_success, task_failure
-
+from fastapi import APIRouter
 
 """
 Function ingest_candles fetches the historical_data of the past 60 days 
@@ -181,7 +181,7 @@ def run_trade_pipeline(self):
 
 @task_success.connect
 def on_success(sender, result, **kwargs):
-    print(f"Task {sender.name} succeded. Result: {result}")
+    print(f"Task {sender.name} suceeded. Result: {result}")
 
 @task_failure.connect
 def on_failure(sender, exc, task_id, args, kwargs, einfo, **_):
@@ -189,6 +189,12 @@ def on_failure(sender, exc, task_id, args, kwargs, einfo, **_):
     print(f"\n Task Exception: {exc}")
     print(f"\n Traceback: {einfo}")
 
+router = APIRouter()
+
+@router.post("/trigger_trade_pipeline")
+def trigger_trade_pipeline():
+    run_trade_pipeline.delay()
+    return {'message': "Trading pipeline queued"}
 
 
 

@@ -6,6 +6,10 @@ from .db import get_session
 from .routes.kite_callback import router as kite_callback_router
 import os 
 from dotenv import load_dotenv
+from contextlib import asynccontextmanager
+from services.api.scheduler import start_scheduler, shutdown_scheduler
+from services.api.app.workers.tasks import router as trade_pipeline
+
 load_dotenv()
 
 app = FastAPI()
@@ -31,6 +35,17 @@ def db_check(db: Session = Depends(get_session)):
     }
 
 app.include_router(kite_callback_router)
+
+@asynccontextmanager
+async def lifespan(app:FastAPI):
+    start_scheduler()
+    yield
+    shutdown_scheduler()
+
+app = FastAPI(lifespan=lifespan)
+
+app.include_router(trade_pipeline)
+
 
 
 
