@@ -9,6 +9,8 @@ from dotenv import load_dotenv
 from contextlib import asynccontextmanager
 from services.api.scheduler import start_scheduler, shutdown_scheduler
 from services.api.app.workers.tasks import router as trade_pipeline
+from services.api.app.services.redis_utils import router as redis_zset
+
 
 load_dotenv()
 
@@ -46,6 +48,7 @@ app = FastAPI(lifespan=lifespan)
 
 app.include_router(trade_pipeline)
 
+app.include_router(redis_zset)
 
 
 

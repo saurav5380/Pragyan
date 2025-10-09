@@ -5,6 +5,7 @@ import redis
 import pandas as pd
 from sqlalchemy import text  # CHANGE: parameterized SQL (safer/faster)
 from app.db import SessionLocal
+from fastapi import APIRouter
 
 IST = pytz.timezone("Asia/Kolkata")
 
@@ -98,3 +99,10 @@ def write_universe_to_redis():
     pipe.execute()
 
     return {"date": today_str, "asof_time": asof_time, "wrote": len(mapping)}
+
+router = APIRouter()
+
+@router.post("/redis_zset")
+def create_zset():
+    write_universe_to_redis.delay()
+    
