@@ -54,7 +54,7 @@ def write_universe_to_redis():
         asof_time = asof_row[0]
         rows = db.execute(fetch_snapshot_sql, {"d": today_ist, "t": asof_time}).fetchall()
 
-    # Put rows into a DataFrame (optional—kept to match your original style)
+    # Put rows into a DataFrame 
     columns = ["date", "asof_time", "symbol_id", "instrument_token", "atr_pct", "adv20", "score", "rank"]
     universe_df = pd.DataFrame(rows, columns=columns)
 
